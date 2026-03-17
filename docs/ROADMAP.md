@@ -1,5 +1,11 @@
 # Roadmap
 
+## Local JSON Feed System
+
+The app includes a lightweight, dependency-free feed backed by a bundled JSON seed file (`Core/Feed/Seed/seed_feed.json`). Feed items are immutable — they ship with the app and cannot be created or deleted by the user. Only *local state* (liked, bookmarked, read) is mutable and is persisted to the Application Support directory via a small `FeedLocalStateStore` that reads and writes a JSON file atomically. This means the feed works entirely offline with no backend required and serves as a foundation that can later be wired up to a remote data source (e.g. Supabase) by swapping the seed-loading step in `FeedStore`.
+
+The feed tab (`AppTab.feed`) and its view (`FeedView`) are fully implemented but intentionally kept disconnected from `AppShellView.rootTabs` while the rest of the app is in MVP/prototype mode. To expose the tab, add `.feed` to `AppTab.rootTabs` and handle it in `AppShellView.tabView(for:)`.
+
 ## Immediate Next Steps
 
 - [x] Add .province and .region tiers to StickerTier.swift

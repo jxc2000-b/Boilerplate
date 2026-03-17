@@ -35,7 +35,7 @@ struct AccessibleAppShellView: View {
             AccessibleTabPlaceholderView(tab: tab, subtitle: "Replace with MapsView.swift")
         case .chat:
             AccessibleTabPlaceholderView(tab: tab, subtitle: "Replace with ChatView.swift")
-        case .binoculars, .navigation, .play, .tray, .backarrow, .friends, .notifications:
+        case .binoculars, .navigation, .play, .tray, .backarrow, .friends, .notifications, .feed:
             EmptyView()
         }
     }
