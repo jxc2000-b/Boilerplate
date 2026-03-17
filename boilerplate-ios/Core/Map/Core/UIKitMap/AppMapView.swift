@@ -51,6 +51,29 @@ struct AppMapView: UIViewRepresentable {
 
         if !toAdd.isEmpty { mapView.addAnnotations(Array(toAdd)) }
         if !toRemove.isEmpty { mapView.removeAnnotations(Array(toRemove)) }
+
+        // Sync map feature overlays (polylines)
+        let visibleIDs = Set(mapViewModel.visibleMapFeatures.map { $0.id })
+        let existingPolylines = mapView.overlays.compactMap { $0 as? FeaturePolyline }
+        let existingIDs = Set(existingPolylines.map { $0.featureID })
+
+        // Remove overlays that are no longer visible
+        let toRemoveOverlays = existingPolylines.filter { !visibleIDs.contains($0.featureID) }
+        if !toRemoveOverlays.isEmpty {
+            mapView.removeOverlays(toRemoveOverlays)
+        }
+
+        // Add newly visible overlays
+        let toAddFeatures = mapViewModel.visibleMapFeatures.filter { !existingIDs.contains($0.id) }
+        for feature in toAddFeatures {
+            let polyline = FeaturePolyline(
+                coordinates: feature.coordinates,
+                count: feature.coordinates.count
+            )
+            polyline.featureID = feature.id
+            // Insert above tiles but below annotations
+            mapView.addOverlay(polyline, level: .aboveRoads)
+        }
     }
 
     func makeCoordinator() -> Coordinator {
@@ -79,14 +102,22 @@ struct AppMapView: UIViewRepresentable {
                 self.parent.mapViewModel.currentLatitudeDelta = newDelta
                 self.parent.mapViewModel.updateVisibleStickers()
                 self.parent.mapViewModel.updateHintStickers()
+                self.parent.mapViewModel.updateVisibleMapFeatures()
             }
         }
 
-        // MARK: Overlay renderer — handles both tile layer and future sticker overlays
+        // MARK: Overlay renderer — handles tile layer and feature polylines
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
             if let tileOverlay = overlay as? MKTileOverlay {
-                // 👈 serve the CartoDB tile renderer
                 return MKTileOverlayRenderer(tileOverlay: tileOverlay)
+            }
+            if let polyline = overlay as? FeaturePolyline {
+                let renderer = MKPolylineRenderer(polyline: polyline)
+                renderer.strokeColor = .systemGreen
+                renderer.lineWidth = 5
+                renderer.lineJoin = .round
+                renderer.lineCap = .round
+                return renderer
             }
             return MKOverlayRenderer(overlay: overlay)
         }
@@ -112,4 +143,10 @@ struct AppMapView: UIViewRepresentable {
             parent.tappedSticker(sticker)
         }
     }
+}
+
+/// MKPolyline subclass that carries the originating MapFeatureOverlay ID,
+/// so overlays can be matched for add/remove without a separate dictionary.
+final class FeaturePolyline: MKPolyline {
+    var featureID: String = ""
 }

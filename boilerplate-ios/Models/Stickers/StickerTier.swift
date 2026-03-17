@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreGraphics
 
 enum StickerTier: Int, Comparable {
     case region = 1       // widest zoom — multi-state/continental scale
@@ -49,6 +50,18 @@ enum StickerTier: Int, Comparable {
         case .city: return .neighbourhood
         case .neighbourhood: return .street
         case .street: return nil
+        }
+    }
+
+    // The recommended pixel-art canvas size (in points) for assets at this tier.
+    // Used in DEBUG builds to warn when a StickerAsset.size doesn't match.
+    var recommendedAssetSize: CGSize {
+        switch self {
+        case .region:       return CGSize(width: 48, height: 48)
+        case .province:     return CGSize(width: 48, height: 48)
+        case .city:         return CGSize(width: 32, height: 32)
+        case .neighbourhood: return CGSize(width: 24, height: 24)
+        case .street:       return CGSize(width: 16, height: 16)
         }
     }
 }

@@ -33,6 +33,18 @@ class StickerAnnotationView: MKAnnotationView {
         imageView.frame = bounds
         centerOffset = CGPoint(x: 0, y: -size.height / 2)
 
+        #if DEBUG
+        let recommended = sticker.tier.recommendedAssetSize
+        if size != recommended {
+            print(
+                "[StickerAsset] ⚠️ Size mismatch for '\(sticker.id)'" +
+                " (tier: \(sticker.tier.displayName))" +
+                " — expected \(Int(recommended.width))×\(Int(recommended.height))" +
+                ", got \(Int(size.width))×\(Int(size.height))"
+            )
+        }
+        #endif
+
         if sticker.asset.isPixelArt {
             imageView.layer.magnificationFilter = .nearest
             imageView.layer.minificationFilter = .nearest
