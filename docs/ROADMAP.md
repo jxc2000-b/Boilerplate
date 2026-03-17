@@ -2,7 +2,7 @@
 
 ## Immediate Next Steps
 
-- [ ] Add `.state` / `.province` tier to `StickerTier.swift` — renders at `latitudeDelta < 5.0`, 48x48pt art
+- [x] Add .province and .region tiers to StickerTier.swift
 - [ ] Add real pixel art assets for Bank of America Plaza and Mercedes-Benz Stadium to asset catalog
 - [ ] Add `NSLocationWhenInUseUsageDescription` to `Info.plist`
 - [ ] Implement `PermissionManager` for real user location and wire into `CurrentLocationButton` and `UnlockContext`

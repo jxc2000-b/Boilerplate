@@ -23,7 +23,8 @@
 ## Zoom Tier Philosophy
 
 - Tiers exist to control **information density** — the map should never feel cluttered
-- State/Province tier = one or two stickers representing an entire region, visible when zoomed far out
+- Region tier = continental/multi-state scale, visible when zoomed far out
+- Province tier = state/province scale, one or two stickers representing an entire region
 - City tier = bold, iconic landmarks. One or two per city.
 - Neighbourhood tier = venues, parks, local spots
 - Street tier = hyper-local, granular detail
@@ -32,7 +33,8 @@
 
 | Tier | Canvas Size | Rendered (points) |
 |---|---|---|
-| State/Province (planned) | 48x48px | 48x48pt |
+| Region | 48x48px | 48x48pt |
+| Province | 48x48px | 48x48pt |
 | City | 32x32px | 32x32pt |
 | Neighbourhood | 24x24px | 24x24pt |
 | Street | 16x16px | 16x16pt |
