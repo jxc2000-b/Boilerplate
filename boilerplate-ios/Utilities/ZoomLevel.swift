@@ -16,6 +16,10 @@ struct ZoomLevel {
             return .neighbourhood
         } else if latitudeDelta < StickerTier.city.latitudeDeltaThreshold {
             return .city
+        } else if latitudeDelta < StickerTier.province.latitudeDeltaThreshold {
+            return .province
+        } else if latitudeDelta < StickerTier.region.latitudeDeltaThreshold {
+            return .region
         }
         return nil
     }

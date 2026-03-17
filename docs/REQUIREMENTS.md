@@ -21,15 +21,16 @@
 
 ## Zoom Tier System
 
-- `.state` / `.province` — visible at `latitudeDelta < 5.0` — regional stickers (48x48pt) — PLANNED
-- `.city` — visible at `latitudeDelta < 1.0` — large landmark stickers (32x32pt)
+- `.region` — visible at `latitudeDelta < 15.0` — continental/multi-state stickers (48x48pt)
+- `.province` — visible at `latitudeDelta < 5.0` — state/province stickers (48x48pt)
+- `.city` — visible at `latitudeDelta < 0.5` — large landmark stickers (32x32pt)
 - `.neighbourhood` — visible at `latitudeDelta < 0.05` — venue stickers (24x24pt)
 - `.street` — visible at `latitudeDelta < 0.01` — hyper-local stickers (16x16pt)
 
 ## Pixel Art Assets
 
 - All sticker images stored in Xcode asset catalog (`Assets.xcassets`)
-- Base canvas sizes: 32x32 (city), 24x24 (neighbourhood), 16x16 (street)
+- Base canvas sizes: 48x48 (region/province), 32x32 (city), 24x24 (neighbourhood), 16x16 (street)
 - Export at @1x, @2x, @3x — pixel art tools (Piskel, Aseprite) handle this
 - `isPixelArt: true` in `StickerAsset` enables nearest-neighbour rendering (`magnificationFilter = .nearest`)
 - Missing assets fall back to coloured SF Symbol (`mappin.circle.fill`) for development
