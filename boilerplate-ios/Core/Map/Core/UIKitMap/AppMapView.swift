@@ -51,6 +51,7 @@ struct AppMapView: UIViewRepresentable {
 
         if !toAdd.isEmpty { mapView.addAnnotations(Array(toAdd)) }
         if !toRemove.isEmpty { mapView.removeAnnotations(Array(toRemove)) }
+<<<<<<< HEAD
         
         print("updateUIView visibleMapFeatures count:", mapViewModel.visibleMapFeatures.count)
 
@@ -76,6 +77,8 @@ struct AppMapView: UIViewRepresentable {
             // Insert above tiles but below annotations
             mapView.addOverlay(polyline, level: .aboveLabels)
         }
+=======
+>>>>>>> origin/copilot/remove-beltline-polyline
     }
 
     func makeCoordinator() -> Coordinator {
@@ -105,18 +108,16 @@ struct AppMapView: UIViewRepresentable {
                 self.parent.mapViewModel.currentLatitudeDelta = newDelta
                 self.parent.mapViewModel.updateVisibleStickers()
                 self.parent.mapViewModel.updateHintStickers()
-                self.parent.mapViewModel.updateVisibleMapFeatures()
             }
             print("visibleMapFeatures:", self.parent.mapViewModel.visibleMapFeatures.map(\.id))
 
         }
 
-        // MARK: Overlay renderer — handles tile layer and feature polylines
+        // MARK: Overlay renderer — handles tile layer
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
             if let tileOverlay = overlay as? MKTileOverlay {
                 return MKTileOverlayRenderer(tileOverlay: tileOverlay)
             }
-            
             if let polyline = overlay as? FeaturePolyline {
                 let pixel: CGFloat = 4
 
@@ -128,6 +129,7 @@ struct AppMapView: UIViewRepresentable {
                 r.lineDashPattern = [pixel as NSNumber, pixel as NSNumber] // optional
                 return r
             }
+
             return MKOverlayRenderer(overlay: overlay)
         }
 
@@ -152,10 +154,4 @@ struct AppMapView: UIViewRepresentable {
             parent.tappedSticker(sticker)
         }
     }
-}
-
-/// MKPolyline subclass that carries the originating MapFeatureOverlay ID,
-/// so overlays can be matched for add/remove without a separate dictionary.
-final class FeaturePolyline: MKPolyline {
-    var featureID: String = ""
 }
