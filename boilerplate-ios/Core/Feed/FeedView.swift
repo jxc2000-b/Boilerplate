@@ -204,6 +204,9 @@ private struct FeedCardView: View {
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.white)
                         .accessibilityLabel("Unread profile")
+                Button(action: onBookmark) {
+                    Image(systemName: row.isBookmarked ? "bookmark.fill" : "bookmark")
+                        .foregroundStyle(row.isBookmarked ? Color.accentColor : Color.secondary)
                 }
             }
             .padding(22)

@@ -41,15 +41,6 @@ class MapViewModel: ObservableObject {
         visibleStickers = StickerStore.shared.visibleStickers(context: unlockContext)
     }
 
-    // MARK: - Visible Map Feature Overlays
-    @Published var visibleMapFeatures: [MapFeatureOverlay] = []
-
-    func updateVisibleMapFeatures() {
-        visibleMapFeatures = MapFeatureOverlayStore.shared.visibleFeatures(
-            currentLatitudeDelta: currentLatitudeDelta
-        )
-    }
-
     // MARK: - Selected Sticker
     @Published var selectedSticker: Sticker?
 

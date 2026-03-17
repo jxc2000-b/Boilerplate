@@ -9,6 +9,9 @@ import SwiftUI
 
 @main
 struct boilerplate_iosApp: App {
+    // Adopts AppDelegate so UIKit lifecycle hooks (and performance monitoring) are available.
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
     var body: some Scene {
         WindowGroup {
             AppRootView()
