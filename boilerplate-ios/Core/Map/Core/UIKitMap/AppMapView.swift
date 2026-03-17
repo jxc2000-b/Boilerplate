@@ -51,6 +51,34 @@ struct AppMapView: UIViewRepresentable {
 
         if !toAdd.isEmpty { mapView.addAnnotations(Array(toAdd)) }
         if !toRemove.isEmpty { mapView.removeAnnotations(Array(toRemove)) }
+<<<<<<< HEAD
+        
+        print("updateUIView visibleMapFeatures count:", mapViewModel.visibleMapFeatures.count)
+
+        // Sync map feature overlays (polylines)
+        let visibleIDs = Set(mapViewModel.visibleMapFeatures.map { $0.id })
+        let existingPolylines = mapView.overlays.compactMap { $0 as? FeaturePolyline }
+        let existingIDs = Set(existingPolylines.map { $0.featureID })
+
+        // Remove overlays that are no longer visible
+        let toRemoveOverlays = existingPolylines.filter { !visibleIDs.contains($0.featureID) }
+        if !toRemoveOverlays.isEmpty {
+            mapView.removeOverlays(toRemoveOverlays)
+        }
+
+        // Add newly visible overlays
+        let toAddFeatures = mapViewModel.visibleMapFeatures.filter { !existingIDs.contains($0.id) }
+        for feature in toAddFeatures {
+            let polyline = FeaturePolyline(
+                coordinates: feature.coordinates,
+                count: feature.coordinates.count
+            )
+            polyline.featureID = feature.id
+            // Insert above tiles but below annotations
+            mapView.addOverlay(polyline, level: .aboveLabels)
+        }
+=======
+>>>>>>> origin/copilot/remove-beltline-polyline
     }
 
     func makeCoordinator() -> Coordinator {
@@ -74,12 +102,15 @@ struct AppMapView: UIViewRepresentable {
         func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
             isRegionChanging = false
             let newDelta = mapView.region.span.latitudeDelta
+            print("Δ latitudeDelta:", newDelta)
 
             DispatchQueue.main.async {
                 self.parent.mapViewModel.currentLatitudeDelta = newDelta
                 self.parent.mapViewModel.updateVisibleStickers()
                 self.parent.mapViewModel.updateHintStickers()
             }
+            print("visibleMapFeatures:", self.parent.mapViewModel.visibleMapFeatures.map(\.id))
+
         }
 
         // MARK: Overlay renderer — handles tile layer
@@ -87,6 +118,18 @@ struct AppMapView: UIViewRepresentable {
             if let tileOverlay = overlay as? MKTileOverlay {
                 return MKTileOverlayRenderer(tileOverlay: tileOverlay)
             }
+            if let polyline = overlay as? FeaturePolyline {
+                let pixel: CGFloat = 4
+
+                let r = PixelStylePolylineRenderer(polyline: polyline)
+                r.strokeColor = .systemGreen
+                r.lineWidth = pixel * 2      // tune
+                r.lineCap = .butt
+                r.lineJoin = .miter
+                r.lineDashPattern = [pixel as NSNumber, pixel as NSNumber] // optional
+                return r
+            }
+
             return MKOverlayRenderer(overlay: overlay)
         }
 

@@ -82,7 +82,7 @@ private struct FeedRowView: View {
 
                 Button(action: onBookmark) {
                     Image(systemName: row.isBookmarked ? "bookmark.fill" : "bookmark")
-                        .foregroundStyle(row.isBookmarked ? .accentColor : .secondary)
+                        .foregroundStyle(row.isBookmarked ? Color.accentColor : Color.secondary)
                 }
                 .buttonStyle(.plain)
             }
