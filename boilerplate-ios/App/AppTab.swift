@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 enum AppTab: String, CaseIterable, Identifiable {
-    case home, profile, search, maps, chat, binoculars, navigation, play, tray, backarrow, friends, notifications
+    case home, profile, search, maps, chat, binoculars, navigation, play, tray, backarrow, friends, notifications, feed
     var id: String { rawValue }
 
     static let rootTabs: [AppTab] = [.home, .search, .maps, .chat, .profile]
@@ -40,6 +40,8 @@ enum AppTab: String, CaseIterable, Identifiable {
             return "Friends"
         case .notifications:
             return "Notifications"
+        case .feed:
+            return "Feed"
         }
     }
     
@@ -69,6 +71,8 @@ enum AppTab: String, CaseIterable, Identifiable {
             return "person.2"
         case .notifications:
             return "bell"
+        case .feed:
+            return "newspaper"
         }
     }
 }

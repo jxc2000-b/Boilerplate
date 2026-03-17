@@ -1,0 +1,38 @@
+[
+  {
+    "id": "feed-001",
+    "title": "Welcome to the Boilerplate Feed",
+    "body": "This is the first entry in your local JSON-backed feed. Content is bundled with the app and local state (likes, bookmarks, read status) persists across launches.",
+    "createdAt": "2026-03-17T12:00:00Z"
+  },
+  {
+    "id": "feed-002",
+    "title": "Sticker Tier System Upgraded",
+    "body": "The sticker unlock system now supports zoom-range conditions, allowing individual stickers to define a min and max latitude delta window for visibility.",
+    "createdAt": "2026-03-16T09:30:00Z"
+  },
+  {
+    "id": "feed-003",
+    "title": "Map Overlays: Green BeltLine Preview",
+    "body": "A new MapFeatureOverlay system has been added. A sample green polyline representing an Atlanta BeltLine-style loop is now visible at city zoom and deeper.",
+    "createdAt": "2026-03-15T15:45:00Z"
+  },
+  {
+    "id": "feed-004",
+    "title": "Debug Size Warnings for Sticker Assets",
+    "body": "In debug builds the app now logs a warning when a sticker asset size does not match the recommended size for its tier. This helps catch artwork issues early.",
+    "createdAt": "2026-03-14T08:00:00Z"
+  },
+  {
+    "id": "feed-005",
+    "title": "CartoDB Tile Layer Layering Fix",
+    "body": "Map overlays (polylines) were previously rendered below the CartoDB tile layer and were only visible while tiles were loading. The z-order has been corrected so polylines always appear on top.",
+    "createdAt": "2026-03-13T17:20:00Z"
+  },
+  {
+    "id": "feed-006",
+    "title": "Glass UI Buttons Added to Map Shell",
+    "body": "The AppShellView now includes glass-effect buttons for notifications, friends, and tray actions, floating above the map in the bottom bar.",
+    "createdAt": "2026-03-12T11:10:00Z"
+  }
+]

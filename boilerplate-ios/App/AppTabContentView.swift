@@ -18,6 +18,7 @@ struct AppTabContentView: View {
 //        case .maps: MapsView()
 //        case .chat: ChatView()
 //        case .profile: ProfileView()
+        case .feed: FeedView()
         default: EmptyView()
         }
     }

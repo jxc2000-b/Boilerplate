@@ -76,7 +76,7 @@ struct AppShellView: View {
             TabPlaceholderView(tab: tab, subtitle: "Replace with MapsView.swift")
         case .chat:
             TabPlaceholderView(tab: tab, subtitle: "Replace with ChatView.swift")
-        case .binoculars, .navigation, .play, .tray, .backarrow, .friends, .notifications:
+        case .binoculars, .navigation, .play, .tray, .backarrow, .friends, .notifications, .feed:
             EmptyView()
         }
     }
