@@ -49,7 +49,6 @@ struct MapView: View {
         
         .onAppear {
             mapViewModel.updateVisibleStickers()
-            mapViewModel.updateVisibleMapFeatures()
         }
     }
 }
