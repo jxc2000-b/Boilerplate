@@ -12,12 +12,6 @@
     "createdAt": "2026-03-16T09:30:00Z"
   },
   {
-    "id": "feed-003",
-    "title": "Map Overlays: Green BeltLine Preview",
-    "body": "A new MapFeatureOverlay system has been added. A sample green polyline representing an Atlanta BeltLine-style loop is now visible at city zoom and deeper.",
-    "createdAt": "2026-03-15T15:45:00Z"
-  },
-  {
     "id": "feed-004",
     "title": "Debug Size Warnings for Sticker Assets",
     "body": "In debug builds the app now logs a warning when a sticker asset size does not match the recommended size for its tier. This helps catch artwork issues early.",
