@@ -83,7 +83,8 @@ struct FeedView: View {
     }
 
     private func swipeToNext() {
-        guard currentIndex < store.rows.count else { return }
+        guard let currentID = currentRow?.id else { return }
+        store.markRead(currentID)
         withAnimation(.spring(response: 0.28, dampingFraction: 0.86)) {
             currentIndex += 1
             dragOffset = .zero
@@ -94,9 +95,11 @@ struct FeedView: View {
     private func swipeGesture(for row: FeedRowModel) -> some Gesture {
         DragGesture()
             .onChanged { value in
+                guard currentRow?.id == row.id else { return }
                 dragOffset = value.translation
             }
             .onEnded { value in
+                guard currentRow?.id == row.id else { return }
                 let threshold: CGFloat = 110
                 if value.translation.width > threshold {
                     store.toggleLiked(for: row.id)
@@ -201,6 +204,7 @@ private struct FeedCardView: View {
                     Label("New", systemImage: "sparkles")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.white)
+                        .accessibilityLabel("Unread profile")
                 }
             }
             .padding(22)
