@@ -51,6 +51,8 @@ struct AppMapView: UIViewRepresentable {
 
         if !toAdd.isEmpty { mapView.addAnnotations(Array(toAdd)) }
         if !toRemove.isEmpty { mapView.removeAnnotations(Array(toRemove)) }
+        
+        print("updateUIView visibleMapFeatures count:", mapViewModel.visibleMapFeatures.count)
 
         // Sync map feature overlays (polylines)
         let visibleIDs = Set(mapViewModel.visibleMapFeatures.map { $0.id })
@@ -97,6 +99,7 @@ struct AppMapView: UIViewRepresentable {
         func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
             isRegionChanging = false
             let newDelta = mapView.region.span.latitudeDelta
+            print("Δ latitudeDelta:", newDelta)
 
             DispatchQueue.main.async {
                 self.parent.mapViewModel.currentLatitudeDelta = newDelta
@@ -104,6 +107,8 @@ struct AppMapView: UIViewRepresentable {
                 self.parent.mapViewModel.updateHintStickers()
                 self.parent.mapViewModel.updateVisibleMapFeatures()
             }
+            print("visibleMapFeatures:", self.parent.mapViewModel.visibleMapFeatures.map(\.id))
+
         }
 
         // MARK: Overlay renderer — handles tile layer and feature polylines
@@ -111,13 +116,17 @@ struct AppMapView: UIViewRepresentable {
             if let tileOverlay = overlay as? MKTileOverlay {
                 return MKTileOverlayRenderer(tileOverlay: tileOverlay)
             }
+            
             if let polyline = overlay as? FeaturePolyline {
-                let renderer = MKPolylineRenderer(polyline: polyline)
-                renderer.strokeColor = .systemGreen
-                renderer.lineWidth = 5
-                renderer.lineJoin = .round
-                renderer.lineCap = .round
-                return renderer
+                let pixel: CGFloat = 4
+
+                let r = PixelStylePolylineRenderer(polyline: polyline)
+                r.strokeColor = .systemGreen
+                r.lineWidth = pixel * 2      // tune
+                r.lineCap = .butt
+                r.lineJoin = .miter
+                r.lineDashPattern = [pixel as NSNumber, pixel as NSNumber] // optional
+                return r
             }
             return MKOverlayRenderer(overlay: overlay)
         }

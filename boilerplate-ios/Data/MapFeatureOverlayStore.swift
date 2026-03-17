@@ -48,7 +48,7 @@ class MapFeatureOverlayStore {
             tier: .city,
             unlockRule: MapFeatureUnlockRule(
                 // Visible when zoomed to city level or deeper (no minimum — stays visible all the way in)
-                conditions: [.zoomRange(maxLatitudeDelta: 0.5, minLatitudeDelta: nil)],
+                conditions: [.zoomRange(maxLatitudeDelta: 999, minLatitudeDelta: nil)],
                 requirement: .any
             )
         )
