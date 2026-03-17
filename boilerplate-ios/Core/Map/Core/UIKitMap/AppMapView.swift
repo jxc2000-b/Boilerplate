@@ -72,7 +72,7 @@ struct AppMapView: UIViewRepresentable {
             )
             polyline.featureID = feature.id
             // Insert above tiles but below annotations
-            mapView.addOverlay(polyline, level: .aboveRoads)
+            mapView.addOverlay(polyline, level: .aboveLabels)
         }
     }
 
