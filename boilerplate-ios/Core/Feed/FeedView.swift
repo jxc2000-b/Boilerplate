@@ -11,6 +11,7 @@ struct FeedView: View {
     @StateObject private var store = FeedStore()
     @State private var currentIndex = 0
     @State private var dragOffset: CGSize = .zero
+    private let swipeThreshold: CGFloat = 110
 
     private var visibleRows: [FeedRowModel] {
         guard currentIndex < store.rows.count else { return [] }
@@ -83,8 +84,7 @@ struct FeedView: View {
     }
 
     private func swipeToNext() {
-        guard let currentID = currentRow?.id else { return }
-        store.markRead(currentID)
+        guard currentIndex < store.rows.count else { return }
         withAnimation(.spring(response: 0.28, dampingFraction: 0.86)) {
             currentIndex += 1
             dragOffset = .zero
@@ -100,11 +100,10 @@ struct FeedView: View {
             }
             .onEnded { value in
                 guard currentRow?.id == row.id else { return }
-                let threshold: CGFloat = 110
-                if value.translation.width > threshold {
+                if value.translation.width > swipeThreshold {
                     store.toggleLiked(for: row.id)
                     swipeToNext()
-                } else if value.translation.width < -threshold {
+                } else if value.translation.width < -swipeThreshold {
                     swipeToNext()
                 } else {
                     withAnimation(.spring(response: 0.28, dampingFraction: 0.86)) {
