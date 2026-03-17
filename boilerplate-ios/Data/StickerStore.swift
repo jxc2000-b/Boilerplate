@@ -28,7 +28,8 @@ class StickerStore {
             ),
             tier: .city,
             unlockRule: StickerUnlockRule(
-                conditions: [.zoom(belowLatitudeDelta: 1.0)],
+                // Visible at city zoom and stays visible all the way into street — no minDelta floor
+                conditions: [.zoomRange(maxLatitudeDelta: 1.0, minLatitudeDelta: nil)],
                 requirement: .any
             ),
             detail: StickerDetail(
