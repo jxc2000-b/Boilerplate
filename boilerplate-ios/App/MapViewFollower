@@ -1,0 +1,281 @@
+MapView() follower document
+
+Current entry path
+boilerplate_iosApp (@main) -> AppRootView.swift -> MapView.swift
+
+The live app entry point is boilerplate_iosApp.swift. Its WindowGroup renders AppRootView().
+AppRootView.swift currently returns only MapView(), so the app launches directly into the map.
+The active SwiftUI preview for this flow is also in AppRootView.swift.
+
+Important current scope notes
+The commented-out AppPreferences / shell code in boilerplate_iosApp.swift and AppRootView.swift is not part of the current MapView path.
+AppShellView.swift, AccessibleAppShellView.swift, AppTab.swift, AppTabContentView.swift, and Screens.swift exist for a larger tabbed app shell, but MapView is not being entered through that shell right now.
+App/MapViewLeader is a product note, not executable code.
+
+High-level MapView flow
+1. MapView creates and owns a @StateObject MapViewModel.
+2. MapView embeds AppMapView, which is a UIViewRepresentable wrapper around MKMapView.
+3. AppMapView asks MapViewModel for the stickers that should currently be visible.
+4. Those stickers are converted into StickerAnnotation objects and rendered by StickerAnnotationView.
+5. When the user taps a sticker, MapViewModel.selectedSticker is set and MapView presents StickerDetailSheet.
+6. When the user pans or zooms, the MKMapView coordinator updates MapViewModel.currentLatitudeDelta, recalculates visible stickers, and recalculates hint stickers.
+7. If there are hidden deeper stickers, MapView shows ZoomHintView over the map.
+
+MapView.swift
+MapView.swift is the SwiftUI container for the whole feature.
+
+It owns:
+- mapViewModel: the observable state and logic for the map
+- showDetail: local sheet presentation state
+
+Its body builds a ZStack with three visible layers:
+- AppMapView for the actual map
+- CurrentLocationButton anchored at the lower-right
+- ZoomHintView near the bottom when hintStickers is not empty
+
+MapView also attaches a sheet. When showDetail becomes true and selectedSticker exists, StickerDetailSheet is presented for that sticker.
+
+On appear, MapView calls mapViewModel.updateVisibleStickers() so the initial sticker set is loaded.
+
+MapViewModel.swift
+MapViewModel is the central state holder for the feature.
+
+Region state
+- _mkCoordinateRegion stores the current desired MKCoordinateRegion. It starts centered on 40.7484, -73.9967 (Empire State Building area) with a latitude/longitude delta of 0.5. change
+- setRegion(_:) is meant to support programmatic recentering, such as the current-location button.
+- trigger is a published boolean used only to force SwiftUI to call updateUIView after setRegion(_:) changes the private region.
+
+Zoom and unlock state
+- currentLatitudeDelta tracks how far zoomed out the map is.
+- manuallyUnlockedIds stores manual unlock ids for future unlock behavior.
+- unlockContext packages currentLatitudeDelta, userLocation, stickerLocation, and manuallyUnlockedIds into one value for the unlock system.
+
+Sticker state
+- visibleStickers is the array currently allowed to appear on the map.
+- selectedSticker stores the sticker the user last tapped.
+- hintStickers stores stickers that are still hidden but close enough in zoom depth to justify showing the "Zoom in to discover more" hint.
+
+Main methods
+- updateVisibleStickers() asks StickerStore.shared.visibleStickers(context:) for all stickers whose unlock rules currently pass.
+- selectSticker(_:) stores the tapped sticker for the detail sheet.
+- clearSelection() exists but is not currently called.
+- updateHintStickers() finds stickers that are not visible yet, have hidden depth, and are within a loose zoom threshold of the current level.
+
+Important implementation detail
+MapViewModel has a weak mapCoordinator reference intended to mark programmatic map moves. In the current code, that coordinator is never assigned back into the view model, so programmatic region changes are only partially wired up.
+
+AppMapView.swift
+AppMapView bridges SwiftUI to UIKit by wrapping MKMapView.
+
+makeUIView(context:)
+- creates an MKMapView
+- shows the user location
+- hides the compass
+- sets the delegate to the coordinator
+- registers StickerAnnotationView for sticker annotations
+- adds MapTileOverlay as the tile overlay
+- sets the initial map region from mapViewModel._mkCoordinateRegion
+
+Base map appearance
+AppMapView uses MapTileOverlay to draw CartoDB Positron tiles. The overlay is marked canReplaceMapContent = true, so it replaces the default Apple map tiles. The file still contains some mapType / preferredConfiguration setup, but the custom tile overlay is what matters most visually.
+
+updateUIView(_:context:)
+This is where SwiftUI state is pushed into MKMapView.
+
+It does two jobs:
+- if a region change was marked as programmatic, it calls mapView.setRegion(...)
+- it diffs visibleStickers against the existing MKMapView annotations, then adds and removes StickerAnnotation objects as needed
+
+The annotation diff works because StickerAnnotation defines equality and hashing by sticker id.
+
+Coordinator behavior
+AppMapView.Coordinator is the MKMapViewDelegate.
+
+It handles:
+- regionWillChangeAnimated: marks that the map is changing
+- regionDidChangeAnimated: reads the new latitudeDelta and pushes it into MapViewModel
+- rendererFor overlay: returns MKTileOverlayRenderer for the tile overlay
+- viewFor annotation: returns StickerAnnotationView configured with the sticker
+- didSelect: converts a tapped annotation back into a Sticker and calls the tappedSticker closure from MapView
+
+When regionDidChangeAnimated fires, the coordinator updates:
+- mapViewModel.currentLatitudeDelta
+- mapViewModel.updateVisibleStickers()
+- mapViewModel.updateHintStickers()
+
+That is the core feedback loop that makes stickers appear and disappear as the user zooms.
+
+StickerAnnotation.swift
+StickerAnnotation is a small MKAnnotation wrapper around a Sticker.
+
+It exposes:
+- sticker: the underlying Sticker model
+- id: derived from sticker.id
+- coordinate: derived from sticker.coordinate
+
+It overrides isEqual and hash so annotations compare by sticker id. This is what allows AppMapView to diff annotations correctly.
+
+StickerAnnotationView.swift
+StickerAnnotationView is the UIKit view used to draw each sticker on the map.
+
+configure(with:)
+- stores the sticker
+- sizes the annotation view from sticker.asset.size
+- positions the image so it visually sits on the coordinate
+- applies nearest-neighbor scaling when the asset is pixel art
+- tries to load UIImage(named: sticker.asset.imageName)
+- falls back to an SF Symbol pin if the asset is missing
+- runs animateIn() each time the view is configured
+
+Important limitation
+StickerAsset.animationType exists in the model, but StickerAnnotationView does not use it yet. Right now the map only renders a static image.
+
+StickerDetailSheet.swift
+StickerDetailSheet is the sheet shown after a sticker tap.
+
+It reads the selected sticker and displays:
+- the sticker asset image
+- sticker.detail.title
+- sticker.detail.category
+- sticker.detail.description
+- optional address
+- optional date range
+- optional action button if actionLabel and actionURL both exist
+
+This file is the main consumer of StickerDetail.
+
+CurrentLocationButton.swift
+CurrentLocationButton is the round button shown in the lower-right corner of MapView.
+
+When tapped it:
+- plays haptic feedback
+- creates a hardcoded coordinate at 40.7484, -73.9967
+- calls the setRegion closure passed in from MapViewModel
+
+Important limitation
+This is not using a real location manager yet. PermissionsManager.swift is effectively empty, and the button comment explicitly says it should later be replaced with permission-based location behavior.
+
+Also, because MapViewModel.mapCoordinator is never assigned, the button's programmatic recentering path is not fully connected in the current implementation.
+
+ZoomHintView.swift
+ZoomHintView is a small SwiftUI overlay that says "Zoom in to discover more".
+MapView shows it when mapViewModel.hintStickers is not empty.
+
+This is how the UI hints that deeper-tier content exists below the current zoom level.
+
+MapTileOverlay.swift
+MapTileOverlay subclasses MKTileOverlay and provides the map tile source.
+
+It:
+- points at the CartoDB Positron tile URL template
+- sets canReplaceMapContent = true
+- uses 512x512 tiles
+- supports zoom levels 0 through 19
+- caches tile data in an in-memory NSCache
+- fetches uncached tiles with URLSession
+
+Models/Stickers
+These files define the domain model that powers the map.
+
+StickerAsset.swift
+- defines StickerAnimationType with cases for none, spriteSheet, lottie, and gif
+- defines StickerAsset with imageName, size, animationType, and isPixelArt
+
+Map usage today:
+- imageName is used by StickerAnnotationView and StickerDetailSheet
+- size is used by StickerAnnotationView
+- isPixelArt is used by StickerAnnotationView
+- animationType is defined but not currently rendered anywhere
+
+StickerDetail.swift
+- defines StickerCategory
+- defines StickerDetail with title, description, category, actionLabel, actionURL, address, and dateRange
+
+Map usage today:
+- StickerDetailSheet is the main reader of this data
+
+StickerTier.swift
+- defines the tier levels city, neighbourhood, and street
+- defines latitudeDeltaThreshold for each tier
+- defines displayName
+- defines nextTier
+- conforms to Comparable by comparing rawValue
+
+Conceptually this file describes the zoom hierarchy of the sticker system.
+
+Map usage today:
+- sticker.tier is used directly in StickerStore data
+- sticker.tier.latitudeDeltaThreshold is used by MapViewModel.updateHintStickers()
+- the Comparable conformance, displayName, and nextTier are currently not used by the live map path
+
+UnlockCondition.swift
+- defines UnlockCondition with zoom, proximity, time, and manual cases
+- defines isMet(context:) to evaluate one condition
+- defines UnlockRequirement as .all or .any
+- defines StickerUnlockRule, which evaluates a list of conditions against a requirement
+- defines UnlockContext, which carries the runtime values needed for evaluation
+
+Map usage today:
+- StickerStore uses StickerUnlockRule in each Sticker
+- MapViewModel builds UnlockContext from currentLatitudeDelta and manuallyUnlockedIds
+- StickerStore.visibleStickers(context:) uses each sticker's unlock rule to decide visibility
+
+Important limitation
+The current unlock context always passes nil for userLocation and stickerLocation, so a proximity unlock would fail if one were added today.
+Manual unlocks are modeled, but nothing in the current UI adds ids to manuallyUnlockedIds.
+The current sample stickers only use zoom-based unlocks.
+
+Stickers.swift
+- defines Sticker as the main model displayed by the map
+- Sticker includes id, coordinate, asset, tier, unlockRule, detail, and hasHiddenDepth
+- Sticker conforms to Identifiable and Equatable
+
+Meaning of hasHiddenDepth
+This flag tells the hint system whether a sticker should imply there is deeper content beneath the current level. MapViewModel.updateHintStickers() uses it when deciding whether to show the zoom hint.
+
+StickerStore.swift
+StickerStore is the current in-memory data source for the map.
+
+It exposes:
+- shared: singleton access
+- allStickers: the hardcoded sticker list
+- visibleStickers(context:): filters allStickers by each sticker's unlock rule
+- stickers(for:): filters by tier
+
+Current sample data
+- "empire-state" is a city-tier sticker with zoom unlock below latitudeDelta 1.0 and hasHiddenDepth = true
+- "jazz-bar-midtown" is a neighbourhood-tier sticker with zoom unlock below latitudeDelta 0.05 and hasHiddenDepth = false
+
+In practice this means:
+- when the map is zoomed out but still below 1.0 delta, the Empire State sticker can appear
+- when the user zooms in past 0.05 delta, the jazz sticker can also appear
+- before that second threshold is crossed, the first sticker can cause the map to show the zoom hint because it hasHiddenDepth = true
+
+Utilities/ZoomLevel.swift
+ZoomLevel.swift contains helper functions for mapping latitudeDelta to a StickerTier.
+
+It provides:
+- tier(for:)
+- isZoomedIn(forTier:latitudeDelta:)
+
+Important note
+This file is currently not used anywhere in the live MapView path.
+
+Complete runtime story
+1. The app launches into AppRootView, and AppRootView returns MapView().
+2. MapView creates MapViewModel and AppMapView.
+3. On appear, MapViewModel loads visible stickers from StickerStore using its initial unlock context.
+4. AppMapView creates MKMapView, sets up the tile overlay, and sets the initial region.
+5. updateUIView converts visible stickers into StickerAnnotation objects and adds them to the map.
+6. MKMapView asks the coordinator for annotation views, and StickerAnnotationView renders each sticker image.
+7. When the user pans or zooms, regionDidChangeAnimated updates currentLatitudeDelta, visibleStickers, and hintStickers.
+8. SwiftUI re-renders AppMapView with the new visible stickers, and the annotation diff adds or removes sticker annotations.
+9. If hidden deeper stickers are implied, MapView shows ZoomHintView.
+10. If the user taps a sticker, the coordinator passes that Sticker back to MapView, which stores it in selectedSticker and presents StickerDetailSheet.
+
+Current gaps / not fully wired yet
+- CurrentLocationButton is conceptually wired to setRegion, but the coordinator is never assigned into MapViewModel, so programmatic recentering is incomplete.
+- hintStickers is updated only after region changes, not during the initial onAppear load, so the zoom hint may not appear until the user moves the map once.
+- StickerAnimationType is modeled but not rendered.
+- proximity and manual unlock systems are modeled but not connected to live location or UI state.
+- PermissionsManager.swift is still a placeholder.

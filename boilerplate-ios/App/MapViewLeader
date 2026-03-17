@@ -1,0 +1,23 @@
+    I believe the trick is to introduce these more apt ways of associating online through a motte, as this way is not really competitive for the average user in comparison to global, ephemeral, idealized, online ways of relation typical of modern dating apps.
+    
+    Integrating the swipe/scroll feed (motte) with MapView(Bailey)
+    
+    How that may work: There are two possible directions that i can take this, one is with a fog of war ovelay, the others is with app control on the map zoom and a return to start is the user strays too far away. User will click into a city wide sticker in the app and then there will be a pop up overlay, in this popup overlay with short details and then a "see people" button, once clicked the user will be brought to a a unified feed of swipeable profiles, with calls to action items like "goes to X bar", "also does this hobby", "almost met", "probably crossed paths", while they swipe through profiles the underlying map changes to that profile's logged locations and so do the rendered pixels by extension, visible through liquid glass, until the user swipes through all the profiles in their bubble.
+        Users may be able to see the world map and navigate to wherever in the world but their view of the pixels will be blurred until they unlock it by visiting.
+        For now however we will have FeedView() in another tab
+        
+    There should be some sort of layered approach to this the anon and identified use, a sustainable approach to deanonymization. I think that there should be certain pixels or buttons that represent anonymous zones, people should get to chose when they remain anon. I like the idea of anon zone split by gender. Anon zone (motte) deanon attachment (bailey). 
+    
+    Once a user is "matched" with another user, there should be some sort of limit to their interaction, this provides some sort of scarcity signals to the users, similar to what hinge does with the 8 match limit.
+    How that may work: Matches may exist in the database, a match is made and users will then be communicate for a brief period of time through StreamView(). In StreamView() each user will have a limited bandwith with other matched users, if they use up their bandwidth then they may have to match again. If users want to ignore other users although the mute/block feature may look identical to other apps, rather what is stored is a metadata sheet of certain filters that are applied in FeedView(). That stored sheet is also visible as their match history collasped as history.
+    
+    I dont like the idea of sending likes, i think what you may call a "like" should rather be amorphous, it may stabilize into some mode specific to each community.
+    How that may work:  In atlanta it may be hidden, it new york it may be visible, in pakistan it may have a different shape and color, in germany it may mostly be initiated by the men, in france it could be both, It may change according to the time of year and season, it may be a rose in june and a ladybug in may. These give the users a sense of the character of their location. Likes may still be called liked but it will live in the Requests tab.
+    
+//Other Remarks
+    
+    It seem beautiful women are mostly on dating app because of the filtering feature, this sort of nitpickness is exactly what i want to build again, i do believe that if this were not the case it would be better for both men and women.
+    I may first want to put the user inside a bubble, but it cannot be a strict bubble because then there is no allure in that. There is again some additional allure in the same night swiping thing, but i might actually want to go against that sort of design.
+    Users do have to have the ability to create new activities, but the success of this app may no depend on it, there is no social incentive for that among base users, i can table that functionality for now
+    I now believe that any feature that makes this a dating app has to be somewhat incidental. Yet i still do not believe in anonymity for this app
+    I think that the intention of this app as a dating app is somewhat incidental, the marketing posture should be somewhat tacit about it true purpose. But its must also be knows for that primarily because that is in a sense the motte for getting people into this reimagined internet experience.
